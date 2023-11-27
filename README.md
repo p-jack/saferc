@@ -1,6 +1,5 @@
 # saferc
 
-012345678901234567890123456789012345678901234567890123456789012345678912345
 This is a prototype of safer version of C's standard library. To use it,
 include the saferc versions of the headers you would ordinarily use. For
 example, include `<saferc/stdio>` instead of `<stdio>`.
