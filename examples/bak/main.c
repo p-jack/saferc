@@ -1,8 +1,8 @@
-#include "../../src/stdlib.h"
-#include "../../src/stdio.h"
+#include <saferc/stdlib.h>
+#include <saferc/stdio.h>
+#include <saferc/string.h>
 
 #define MAX_PATH 4096
-#define BUF_SIZE 4096
 
 int main(int argc, const char* argv[]) {
   SAFER_BEGIN();
@@ -20,8 +20,8 @@ int main(int argc, const char* argv[]) {
     fputc(ch, w);
   }
   cleanup:
-  CATCH(fprintf(stderr, "error %x", err));
-  FCLOSE(r);
+  CATCH(fprintf(stderr, "error %d: %s\n", err, strerror(err)));
   FCLOSE(w);
+  FCLOSE(r);
   SAFER_END();
 }
