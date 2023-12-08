@@ -2,7 +2,8 @@
 #include "../../src/stdio.h"
 #include <string.h> // TODO
 
-static int macro_empty_test(void) {
+#define macro_empty_test() TRY(macro_empty_test())
+static int (macro_empty_test)(void) {
   SAFER_BEGIN();
 //body:
   if (!SAFER_EMPTY_VA_ARGS()) THROW(666);
@@ -14,7 +15,8 @@ cleanup:
   SAFER_END();
 }
 
-static int macro_too_many_test(void) {
+#define macro_too_many_test() TRY(macro_too_many_test())
+static int (macro_too_many_test)(void) {
   SAFER_BEGIN();
 //body:
   if (SAFER_TOO_MANY_VA_ARGS()) THROW(666);
@@ -41,7 +43,8 @@ cleanup:
   SAFER_END();
 }
 
-static int macro_count_test(void) {
+#define macro_count_test() TRY(macro_count_test())
+static int (macro_count_test)(void) {
   SAFER_BEGIN();
 //body:
   if (SAFER_COUNT_VA_ARGS() != 1) THROW(666); // known issue
@@ -65,7 +68,8 @@ cleanup:
   SAFER_END();
 }
 
-static int file_test(void) {
+#define file_test() TRY(file_test())
+static int (file_test)(void) {
   SAFER_BEGIN();
   FILE* f = NULL;
   char* buf = NULL;
@@ -97,7 +101,8 @@ cleanup:
   SAFER_END();
 }
 
-static int fmt_test(void) {
+#define fmt_test() TRY(fmt_test())
+static int (fmt_test)(void) {
   SAFER_BEGIN();
   FILE* f = NULL;
 //body:
@@ -115,7 +120,8 @@ cleanup:
   SAFER_END();
 }
 
-static int fmt_test2(void) {
+#define fmt_test2() TRY(fmt_test2())
+static int (fmt_test2)(void) {
   SAFER_BEGIN();
   FILE* f = NULL;
 //body:
@@ -136,14 +142,16 @@ cleanup:
   SAFER_END();
 }
 
-static int fileno_test(void) {
+#define fileno_test() TRY(fileno_test())
+static int (fileno_test)(void) {
   SAFER_BEGIN();
   if (fileno(stdout) != 1) THROW(666);
   cleanup:
   SAFER_END();
 }
 
-static int sscanf_test(void) {
+#define sscanf_test() TRY(sscanf_test())
+static int (sscanf_test)(void) {
   SAFER_BEGIN();
   //body:
   char* input = "hello 123";
@@ -152,6 +160,47 @@ static int sscanf_test(void) {
   sscanf(input, "%s %d", s, &i);
   if (strcmp(s, "hello") != 0) THROW(666);
   if (i != 123) THROW(666);
+cleanup:
+  SAFER_END();
+}
+
+#define snprintf_test1() TRY(snprintf_test1())
+static int (snprintf_test1)(void) {
+  SAFER_BEGIN();
+  char buf[13];
+  snprintf(buf, sizeof(buf), "Hello, %s", "world!");
+cleanup:
+  if (err != ENOMEM) {
+    printf("got %d", err);
+    // Expected failure, the buffer wasn't big enough for the nul.
+    err = 66;
+  } else {
+    err = 0;
+  }
+  SAFER_END();
+}
+
+#define snprintf_test2() TRY(snprintf_test2())
+static int (snprintf_test2)(void) {
+  SAFER_BEGIN();
+  char buf[10];
+  snprintf(buf, sizeof(buf), "Hello, %s", "world!");
+cleanup:
+  if (err != ENOMEM) {
+    printf("got %d", err);
+    // Expected failure, the buffer wasn't big enough
+    err = 66;
+  } else {
+    err = 0;
+  }
+  SAFER_END();
+}
+
+#define snprintf_test3() TRY(snprintf_test3())
+static int (snprintf_test3)(void) {
+  SAFER_BEGIN();
+  char buf[14];
+  snprintf(buf, sizeof(buf), "Hello, %s", "world!");
 cleanup:
   SAFER_END();
 }
@@ -185,19 +234,20 @@ cleanup:
   SAFER_END();
 }
 
-
 int main(void) {
   SAFER_BEGIN();
 //body:
-  TRY(macro_empty_test());
-  TRY(macro_too_many_test());
-  TRY(macro_count_test());
-  TRY(file_test());
-  TRY(fmt_test());
-  TRY(fmt_test2());
-  TRY(fileno_test());
-  TRY(sscanf_test());
+  macro_empty_test();
+  macro_too_many_test();
+  macro_count_test();
+  file_test();
+  fmt_test();
+  fmt_test2();
+  fileno_test();
+  sscanf_test();
+  snprintf_test1();
+  snprintf_test2();
+  snprintf_test3();
 cleanup:
-  if (err == 0) puts("SUCCESS");
   SAFER_END();
 }
