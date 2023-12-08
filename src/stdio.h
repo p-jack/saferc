@@ -196,7 +196,7 @@ typedef struct { } safer_dummy_t;
   size_t $size = size; \
   size_t $r = snprintf(str, $size, fmt, __VA_ARGS__); \
   if ($r < 0) THROW($r); \
-  if ($r > $size) THROW(ENOMEM); \
+  if ($r >= $size) THROW(ENOMEM); \
   $r; \
 }
 
